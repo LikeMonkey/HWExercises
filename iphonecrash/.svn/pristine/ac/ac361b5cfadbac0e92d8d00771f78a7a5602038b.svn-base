@@ -1,0 +1,30 @@
+//
+//  VoteModel.h
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/17.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "BaseModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface VoteModel : BaseModel
+
+@property (nonatomic, copy)   NSString  *icon;
+@property (nonatomic, copy)   NSString  *title;
+@property (nonatomic, copy)   NSString  *votenum;
+@property (nonatomic, assign) NSInteger type;
+@property (nonatomic, assign) NSInteger updown;
+@property (nonatomic, copy)   NSString  *index;
+/** 品牌名称 */
+@property (nonatomic,copy) NSString *brandName;
+/** 公司地址     */
+@property (nonatomic,copy) NSString *detailTitle;
+/** 网址 */
+@property (nonatomic,copy) NSString *webAddress;
+
+@end
+
+NS_ASSUME_NONNULL_END

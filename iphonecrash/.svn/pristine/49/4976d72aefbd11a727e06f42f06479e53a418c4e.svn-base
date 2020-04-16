@@ -1,0 +1,341 @@
+//
+//  WorldOfTheBrandDetailController.m
+//  ZhongQiBrand
+//
+//  Created by ios 001 on 2019/10/17.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "WorldOfTheBrandDetailController.h"
+#import "WorldOfTheBrandDetailCecll.h"
+static NSString *const WorldOfTheBrandDetailCecllID = @"WorldOfTheBrandDetailCecll";
+@interface WorldOfTheBrandDetailController ()<UITableViewDelegate, UITableViewDataSource>
+/** tableView */
+@property (nonatomic,strong) UITableView *tableView;
+/** 品牌图片 */
+@property (nonatomic,strong) UIImageView *brandImageView;
+/** 品牌名称 */
+@property (nonatomic,strong) UILabel *brandName;
+/** 更新时间 */
+@property (nonatomic,strong) UILabel *updateTime;
+/** 排名图片 */
+@property (nonatomic,strong) UIImageView *RankImageView;
+/** 数据源 */
+@property (nonatomic,strong) NSMutableArray *dataArr;
+/** 数据源名称 */
+@property (nonatomic,strong) NSMutableArray *infoArr;
+/** 分享页面 */
+@property (nonatomic,strong) SharePopView *popView;
+
+@end
+
+@implementation WorldOfTheBrandDetailController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.navigationItem.title = @"品牌详情";
+    [self initNavView];
+    [self initBackNavItem];
+    self.brandName.text = @"晨阳科技";
+    self.updateTime.text = [NSString stringWithFormat:@"更新:%@",@"2019.11.1"];
+    [self.brandImageView sd_setImageWithURL:[NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568696188979&di=625b66b9f09b1637201c257bb4ee2a9f&imgtype=0&src=http%3A%2F%2Fpic24.nipic.com%2F20121012%2F6659396_153724664149_2.jpg"] placeholderImage:kGetImage(@"tpsq_btn_img")];
+    [self.RankImageView setImage:[UIImage imageNamed:@"ppsj_zsp_icon"]];
+    self.infoArr =@[@"公司名称:",@"成立时间:",@"所属行业:",@"公司地址:",@"官方网址:",@"经营范围:"].mutableCopy;
+    self.dataArr =@[@"晨阳科技网络有限责任公司晨阳科",@"2019年7月23日",@"烫发机行业",@"上海市万兴路82幢5巷3弄上海市万兴路82",@"www.romabi.com",@"液压气动成套设备生产(限分支经营)销售机 械设备冶金设备金属材料建筑装潢材。压气动成套设备生产(限分支经营)销售机 械设备冶金设备金属材料建筑装潢材压气动成套设备生产(限分支经营)销售机 械设备冶金设备金属材料建筑装潢材"].mutableCopy;
+    [self.view addSubview:self.tableView];
+    [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.navView.mas_bottom);
+        make.left.right.bottom.mas_equalTo(0);
+    }];
+    
+    //    [self.tableView reloadData];
+}
+
+#pragma mark - Private Method
+
+-(void)initBackNavItem {
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"all_fahuia_btn"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(backClicked:)];
+    self.navigationItem.leftBarButtonItem = backItem;
+    
+    UIBarButtonItem *shareItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"ppsj_ppmp_fxtb_icon"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(shareBtnClick)];
+    self.navigationItem.rightBarButtonItem = shareItem;
+    
+}
+#pragma mark - tableView
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == 0) {
+        return self.dataArr.count;
+    }else{
+        return 0;
+    }
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    WorldOfTheBrandDetailCecll *cell=[WorldOfTheBrandDetailCecll cellWithTableView:tableView withIdentifier:WorldOfTheBrandDetailCecllID indexPath:indexPath];
+    
+    cell.infoLabel.text =self.infoArr[indexPath.row];
+//    cell.contentLabel.text = self.dataArr[indexPath.row];
+    
+    
+    //设置文字两端对齐
+      NSMutableAttributedString * attributedString1 = [[NSMutableAttributedString alloc] initWithString:   self.dataArr[indexPath.row]];
+      NSMutableParagraphStyle * paragraphStyle1 = [[NSMutableParagraphStyle alloc] init];
+      paragraphStyle1.alignment=NSTextAlignmentJustified;
+      paragraphStyle1.lineSpacing = px_scale(8);
+      NSDictionary * dic =@{
+                            NSParagraphStyleAttributeName:paragraphStyle1,
+                            NSUnderlineStyleAttributeName:[NSNumber numberWithInteger:NSUnderlineStyleNone],
+                            };
+      [attributedString1 setAttributes:dic range:NSMakeRange(0, attributedString1.length)];
+      cell.contentLabel.attributedText = attributedString1;
+    return cell;
+}
+#pragma mark - <UITableViewDelegate>
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc]init];
+    view.backgroundColor = [UIColor clearColor];
+    
+    return view;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc]init];
+    view.backgroundColor = [UIColor whiteColor];
+    UITapGestureRecognizer *singalTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(headerViewClick:)];
+    [view addGestureRecognizer:singalTap];
+    //  品牌头部试图
+    if (section == 0) {
+        
+        [view addSubview:self.brandImageView];
+        [self.brandImageView addSubview:self.RankImageView];
+        
+        [view addSubview:self.brandName];
+        
+        [view addSubview:self.updateTime];
+        
+        UIImageView *timeUpdataImage = [[UIImageView alloc]init];
+        [timeUpdataImage setImage:[UIImage imageNamed:@"ppsj_time_show_icon"]];
+        [view addSubview:timeUpdataImage];
+        
+        UIView *line = [[UIView alloc]init];
+        line.backgroundColor = [UIColor colorWithHexString:@"#EDEDED"];
+        
+        [view addSubview:line];
+        
+        [self.brandName mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_offset(px_scale(50));
+            make.top.mas_equalTo(px_scale(50));
+        }];
+        [self.brandImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_offset(px_scale(50));
+            make.right.mas_offset(px_scale(-50));
+            make.width.mas_equalTo(px_scale(204));
+            make.height.mas_equalTo(px_scale(118));
+            
+        }];
+        [self.RankImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.top.mas_equalTo(self.RankImageView);
+        }];
+        [timeUpdataImage mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(self.brandName);
+            make.top.mas_equalTo(self.brandName.mas_bottom).mas_offset(px_scale(30));
+        }];
+        [self.updateTime mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(timeUpdataImage);
+            make.left.mas_equalTo(timeUpdataImage.mas_right).mas_offset(px_scale(8));
+        }];
+        [line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_offset(px_scale(50));
+            make.right.mas_offset(px_scale(-50));
+            make.bottom.mas_offset(px_scale(-40));
+            make.height.mas_equalTo(px_scale(2));
+        }];
+        
+    }else if(section== 1){
+        //品牌介绍
+        view.tag = 1;
+        UIView *redView = [[UIView alloc]init];
+        redView.backgroundColor = [UIColor colorWithHexString:@"#D3141C"];
+        redView.layer.cornerRadius = px_scale(4);
+        redView.layer.masksToBounds = YES;
+        
+        UILabel *titlelabel = [[UILabel alloc]init];
+        [titlelabel setFont:[UIFont boldSystemFontOfSize:px_scale(32)]];
+        titlelabel.textColor = [UIColor colorWithHexString:@"#333333"];
+        titlelabel.text = @"品牌介绍";
+        UIImageView *rightArrow = [[UIImageView alloc]init];
+        [rightArrow setImage:[UIImage imageNamed:@"ppsj__pre_btn_icon"]];
+        
+        [view addSubview:redView];
+        [view addSubview:titlelabel];
+        [view addSubview:rightArrow];
+        [redView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(view);
+            make.left.mas_offset(px_scale(50));
+            make.height.mas_equalTo(px_scale(30));
+            make.width.mas_equalTo(px_scale(8));
+        }];
+        [titlelabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(view);
+            make.left.mas_equalTo(redView.mas_right).mas_offset(px_scale(20));
+        }];
+        [rightArrow mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_offset(px_scale(-50));
+            make.centerY.mas_equalTo(view);
+        }];
+        
+        
+    }else{
+        view.tag = 2;
+        //更多介绍
+        UIView *redView = [[UIView alloc]init];
+        redView.backgroundColor = [UIColor colorWithHexString:@"#D3141C"];
+        redView.layer.cornerRadius = px_scale(4);
+        redView.layer.masksToBounds = YES;
+        
+        UILabel *titlelabel = [[UILabel alloc]init];
+        [titlelabel setFont:[UIFont boldSystemFontOfSize:px_scale(32)]];
+        titlelabel.textColor = [UIColor colorWithHexString:@"#333333"];
+        titlelabel.text = @"更多介绍";
+        UIImageView *rightArrow = [[UIImageView alloc]init];
+        [rightArrow setImage:[UIImage imageNamed:@"ppsj__pre_btn_icon"]];
+        
+        [view addSubview:redView];
+        [view addSubview:titlelabel];
+        [view addSubview:rightArrow];
+        [redView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(view);
+            make.left.mas_offset(px_scale(50));
+            make.height.mas_equalTo(px_scale(30));
+            make.width.mas_equalTo(px_scale(8));
+        }];
+        [titlelabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(view);
+            make.left.mas_equalTo(redView.mas_right).mas_offset(px_scale(20));
+        }];
+        [rightArrow mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_offset(px_scale(-50));
+            make.centerY.mas_equalTo(view);
+        }];
+        
+    }
+    return view;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return px_scale(20);
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (section == 0) {
+        return px_scale(280);
+    }else{
+        return px_scale(100);
+    }
+}
+#pragma mark - Setter & Getter
+
+-(UITableView *)tableView {
+    
+    if(!_tableView) {
+        
+        _tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+        
+        _tableView.delegate =self;
+        
+        _tableView.dataSource =self;
+//        _tableView.scrollEnabled = YE;
+        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        [_tableView registerClass:[WorldOfTheBrandDetailCecll class] forCellReuseIdentifier:WorldOfTheBrandDetailCecllID];
+        _tableView.estimatedRowHeight = px_scale(80);
+    }
+    
+    return _tableView;
+    
+}
+
+- (UIImageView *)brandImageView {
+    if (!_brandImageView) {
+        _brandImageView = [[UIImageView alloc]init];
+        
+        
+        
+        _brandImageView.layer.cornerRadius = 5;
+        _brandImageView.layer.masksToBounds = YES;
+        _brandImageView.layer.borderWidth = px_scale(6);
+        
+        //排名不同，颜色不同
+        _brandImageView.layer.borderColor = [UIColor colorWithHexString:@"#FAE04B"].CGColor;
+    }
+    return _brandImageView;
+}
+
+- (UILabel *)brandName {
+    if (!_brandName) {
+        _brandName = [[UILabel alloc]init];
+        _brandName.font = [UIFont boldSystemFontOfSize:px_scale(40)];
+        _brandName.textAlignment = NSTextAlignmentLeft;
+        _brandName.textColor = [UIColor colorWithHexString:@"#333333"];
+        
+        
+    }
+    return _brandName;
+}
+
+- (UILabel *)updateTime {
+    if (!_updateTime) {
+        _updateTime = [[UILabel alloc]init];
+        _updateTime.font = [UIFont systemFontOfSize:px_scale(24)];
+        _updateTime.textAlignment = NSTextAlignmentLeft;
+        _updateTime.textColor = [UIColor colorWithHexString:@"#333333"];
+    }
+    return _updateTime;
+}
+
+- (UIImageView *)RankImageView {
+    if (!_RankImageView) {
+        _RankImageView = [[UIImageView alloc]init];
+    }
+    return _RankImageView;
+}
+#pragma mark - Target Mehtods
+
+-(void)backClicked:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)shareBtnClick{
+    // 分享
+   
+       SharePopView *popV =[SharePopView showShare];
+       [popV setShareAction:^(ShareType type, id shareImge) {
+       [ShareManager shareWithType:(UMSocialPlatformType)type
+                              andImage:@""
+                         andShareTitle:@"测试数据"
+                           andShareUrl:@""
+                          andShareDesc:@"这是一条分享的测试数据"
+                         andCompletion:^(BOOL isSuccess) {
+                             NSLog(@"分享结果回调");
+                         }];
+       }];
+}
+-(void)headerViewClick:(UITapGestureRecognizer *)gestureRecognizer{
+    if (gestureRecognizer.view.tag == 1) {
+        NSLog(@"点击了品牌介绍");
+        return;
+    }
+    if (gestureRecognizer.view.tag == 2) {
+        NSLog(@"点击了更多介绍");
+        return;
+    }
+}
+@end

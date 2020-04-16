@@ -1,0 +1,53 @@
+//
+//  HWExercises_prefix.pch
+//  HWExercises
+//
+//  Created by sxmaps_w on 2017/5/22.
+//  Copyright © 2017年 wqb. All rights reserved.
+//
+
+#ifndef HWExercises_prefix_pch
+#define HWExercises_prefix_pch
+
+#import "AFNetworking.h"
+#import "MJExtension.h"
+#import "HWProgressHUD.h"
+#import "HWToolBox.h"
+#import "UIImage+HW.h"
+#import "UIColor+HW.h"
+
+#define KWhiteColor [UIColor whiteColor]
+#define KBackgroundColor [UIColor colorWithHexString:@"#f0f0f0"]
+#define KLineColor [UIColor colorWithHexString:@"#e5e5e5"]
+#define kMainColor [UIColor colorWithHexString:@"#2f9cd4"]
+
+//获取屏幕宽高
+#define KMainW [UIScreen mainScreen].bounds.size.width
+#define KMainH [UIScreen mainScreen].bounds.size.height
+
+//判断机型、系统
+#define IS_IPHONE_5 (KMainH == 568.0)
+#define IS_IPHONE_6 (KMainH == 667.0)
+#define IS_IPHONE_6P (KMainH == 736.0)
+#define ISIOS8 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0 ? YES : NO)
+#define ISIOS10 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10.0 ? YES : NO)
+
+//根据一种屏幕尺寸开发，等比缩放到其他尺寸（如：375为4.7寸屏）
+#define KScreenRate (375 / KMainW)
+#define KSuitFloat(float) (float / KScreenRate)
+#define KSuitSize(width, height) CGSizeMake(width / KScreenRate, height / KScreenRate)
+#define KSuitPoint(x, y) CGPointMake(x / KScreenRate, y / KScreenRate)
+#define KSuitFrame(x, y, width, heigth) CGRectMake(x / KScreenRate, y / KScreenRate, width / KScreenRate, heigth / KScreenRate)
+
+//block修饰
+#define weakify(var) __weak typeof(var) weakSelf = var
+#define strongify(var) __strong typeof(var) strongSelf = var
+
+//Debug下输出打印信息，Release下不输出打印信息
+#ifdef DEBUG
+#define HWLog(...) NSLog(__VA_ARGS__)
+#else
+#define HWLog(...)
+#endif
+
+#endif /* HWExercises_prefix_pch */

@@ -1,0 +1,421 @@
+//
+//  VoteViewController.m
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/16.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+
+//活动状态
+typedef enum : NSUInteger {
+	ActivityNotStartedState,                             //活动未开始
+	ActivityInProgressState,                             //活动进行中
+	ActivityEndInThreeDayState,                     //活动结束三天内
+	ActivityEndOutThreeDayState,                  //活动结束三天后
+	ActivityUnCoverInThreeDayState,            //揭榜前三天内
+	ActivityUnCoverOutThreeDayState,          //揭榜前三天后
+	ActivityListFinalState,                                //活动榜单列表
+} ActivityState;
+
+#import "VoteViewController.h"
+
+#import "VoteBrandDetailViewController.h"
+
+#import "VoteTableViewCell.h"
+#import "VoteHeaderView.h"
+
+#import "VoteSuccessModel.h"
+#import "VoteFailModel.h"
+#import "VoteModel.h"
+
+#import "ShareManager.h"
+#import "UserTouchManager.h"
+
+#import "SharePopView.h"
+#import "ServicePopView.h"
+#import "VoteSuccessPopView.h"
+#import "VoteCerImgTextPopView.h"
+#import "VoteRulePopView.h"
+#import "VoteDetailPopView.h"
+#import "VoteFailPopView.h"
+
+
+@interface VoteViewController () <UITableViewDelegate, UITableViewDataSource>
+@property (nonatomic, strong) UIImageView *backgroudImg;
+@property (nonatomic, strong) UITableView *voteTableView;
+@property (nonatomic, strong) NSMutableArray *dataArray;
+@property (nonatomic,strong)NSMutableArray *searchDataArray;//搜索的数据
+@property (nonatomic, strong) VoteHeaderView *headerView;
+@property (nonatomic, strong) UIButton *customerServiceBtn;
+@property (nonatomic, strong) UIButton *shareBtn;
+
+//是否是正在搜索
+@property(nonatomic,assign)BOOL isSearch;
+
+@end
+
+@implementation VoteViewController
+-(void)viewWillAppear:(BOOL)animated
+{
+	[super viewWillAppear:animated];
+	BlackStatusBar;
+}
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setupUI];
+    WS(ws);
+    [self.view.lgPlaceholder setActionBlock:^(LgPlaceholderState state) {
+        if (state == LgPlaceLoadingState) {
+            ws.view.lgPlaceholder.state = LgPlaceLoadingState;
+            [ws loadData];
+        }
+    }];
+	self.view.lgPlaceholder.state = LgPlaceLoadingState; //设置为加载中
+	[self loadData]; //请求数据
+}
+#pragma mark - Initial Methods
+
+/** 视图初始化 */
+- (void)setupUI {
+    self.dataArray = [[NSMutableArray alloc] init];
+    [self initNavView];
+    [self initBackNavItem];
+    [self.view addSubview:self.voteTableView];
+    [self.view addSubview:self.customerServiceBtn];
+    [self.view addSubview:self.shareBtn];
+    [self.voteTableView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.navView.mas_bottom);
+        make.left.right.bottom.mas_equalTo(0);
+    }];
+    [self.customerServiceBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(-px_scale(15));
+        make.top.mas_equalTo(px_scale(971));
+        make.width.height.mas_equalTo(px_scale(110));
+    }];
+    [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(-px_scale(15));
+        make.top.equalTo(self.customerServiceBtn.mas_bottom).offset(0);
+        make.width.height.mas_equalTo(px_scale(110));
+    }];
+    [self initHeaderView];
+}
+
+//初始化表头
+- (void)initHeaderView {
+    self.headerView.runLab.text = @"郑重提示：中企品牌网不会授权任何单位，谨防诈骗。";
+    self.headerView.titleLab.text = @"十大品牌评选活动";
+    self.headerView.descriptionLab.text = @"烫发机行业";
+    self.voteTableView.tableHeaderView = self.headerView;
+}
+
+#pragma mark - Target Mehtods
+-(void)backClicked:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+- (void)joinClicked:(UIBarButtonItem *)bar{
+    // 参加活动
+	NSLog(@"点击了参加活动按钮");
+}
+- (void)customerServiceBtnClick:(UIButton *)btn{
+    // 客服
+    [ServicePopView showInWindow];
+}
+
+- (void)shareBtnClick{
+    // 分享
+    SharePopView *popV =[SharePopView showShare];
+    [popV setShareAction:^(ShareType type, id shareImge) {
+    [ShareManager shareWithType:(UMSocialPlatformType)type
+                           andImage:@""
+                      andShareTitle:@"测试数据"
+                        andShareUrl:@""
+                       andShareDesc:@"这是一条分享的测试数据"
+                      andCompletion:^(BOOL isSuccess) {
+                          NSLog(@"分享结果回调");
+                      }];
+    }];
+}
+
+#pragma mark - Private Method
+
+#pragma mark - Public Method
+
+
+#pragma mark - UITableView Delegate &Datasource
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+	if (self.isSearch) {
+		return self.searchDataArray.count;
+	}else{
+		  return self.dataArray.count;
+	}
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	WS(ws);
+    VoteTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([VoteTableViewCell class]) forIndexPath:indexPath];
+	cell.buttonClickBlock = ^(id sender){
+		//点击投票按钮
+		[ws voteClicked:sender];
+	};
+	if (!self.isSearch) {
+			VoteModel *m = self.dataArray[indexPath.row];
+			cell.model = m;
+	}else{
+		VoteModel *m = self.searchDataArray[indexPath.row];
+		cell.model = m;
+	}
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    return cell;
+}
+//显示图文验证
+-(void)showImageTextViewCerView
+{
+	[VoteCerImgTextPopView showInWindow];
+}
+
+-(void)showVoteFailView
+{
+	VoteFailModel *failModel = [[VoteFailModel alloc]init];
+	failModel.iconUrl = @"";
+	failModel.brandName = @"耐克";
+	failModel.failError = @"网络好像出了点问题";
+	[VoteFailPopView showVoteFailWithModel:failModel];
+}
+-(void)showVoteSucess
+{
+	// 测试投票成功弹框显示
+	VoteSuccessModel *model = [[VoteSuccessModel alloc]init];
+	model.iconUrl = @"";
+	model.votesNum = @"3654";
+	model.brandName = @"晨阳科技";
+	model.voteDtae = @"2019年07月18日";
+	model.voteTime = @"12:00:00";
+	[VoteSuccessPopView showVoteSuccessWithModel:model];
+}
+-(void)voteWithItem:(id)model andVoteType:(NSString *)voteType
+{
+	NSLog(@"投票类型：|%@",voteType);
+	NSInteger timeLine =  [[NSString spaceTimeLine] integerValue] + 30 * 60;
+	[[NSUserDefaults standardUserDefaults]setObject:@(timeLine) forKey:@"last_voteTimeLine"];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+	//开启首页定时器
+	[HomeTimeManager startTime];
+}
+//不在投票时间点内
+-(void)showInSleepTime
+{
+	[VoteRulePopView showContent:@"晚24:00 — 早7:00之间不可进行投票" ruleType:VoteRuleTypeOverTime];
+}
+-(void)voteClose
+{
+	[VoteRulePopView showContent:@"您在30分钟后，即10：30可继续参与投票" ruleType:VoteRuleTypeDuring];
+}
+-(void)voteClicked:(id)sender
+{
+	__weak typeof(self)ws = self;
+	NSIndexPath *indexPath = [self.voteTableView indexPathForCell:sender];
+	[UserTouchManager useFaceOrTouch:^(TouchIdAuthorState state) {
+		if (state != AuthorSucessType) {
+			if (state == UserSetCloseType ||state == AuthorFailType||state == NotSurportTouchId) {
+				[ws showImageTextViewCerView]; //验证失败或者用户自己在设置页面关闭了
+			}
+		}else if(state == AuthorSucessType){
+			NSLog(@"去指纹投票");
+			[ws voteWithItem:indexPath andVoteType:@"1"]; //指纹投票
+		}
+	}];
+}
+#pragma mark - Table view delegate
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    VoteModel*votemodel = self.dataArray[indexPath.row];
+    if (votemodel.type == 6) {
+        return px_scale(238);
+    }else{
+        return px_scale(188);
+    }
+}
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    VoteBrandDetailViewController *vc= [[VoteBrandDetailViewController alloc]init];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return CGFLOAT_MIN;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return CGFLOAT_MIN;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+#pragma mark - Setter & Getter
+- (UIImageView *)backgroudImg {
+    if (!_backgroudImg) {
+        _backgroudImg = [[UIImageView alloc]init];
+        _backgroudImg.image = [UIImage imageNamed:@"ppsj_bd_dwy_img"];
+    }
+    return _backgroudImg;
+}
+- (UITableView *)voteTableView{
+    if (!_voteTableView) {
+        _voteTableView = [[UITableView alloc] init];
+		 [_voteTableView registerClass:[VoteTableViewCell class] forCellReuseIdentifier:NSStringFromClass([VoteTableViewCell class])];
+        _voteTableView.dataSource = self;
+        _voteTableView.delegate = self;
+        _voteTableView.backgroundColor = [UIColor colorWithHexString:@"#F6F6F6"];
+        _voteTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        _voteTableView.platformView.title = @"————  我们是有底线的  ————";
+        _voteTableView.platformView.textColor = [UIColor colorWithHexString:@"#999999"];
+        _voteTableView.platformView.textFont = [UIFont systemFontOfSize:12];
+        _voteTableView.platformView.isNotBottom = YES;
+        
+    }
+    return _voteTableView;
+}
+
+- (VoteHeaderView *)headerView{
+    if (!_headerView) {
+        WS(ws);
+        _headerView = [[VoteHeaderView alloc] initWithFrame:CGRectMake(0, 0, MAINScreenWidth, px_scale(380 + 36))];
+        _headerView.buttonClickBlock = ^(UIButton * _Nonnull btn) {
+			if (btn.tag == 101){
+                [ws joinClicked:nil];
+            }else if (btn.tag == 102){
+                [VoteDetailPopView show:@"中国机电能源仪器" time:@"2019.07-2019.08" participation:@"进入中企品牌网官方网站参与活动"];
+            }
+        };
+		[_headerView setSearchReturnBlock:^(NSString * _Nonnull searchText) {
+			ws.isSearch = YES;
+			[ws searchRequestText:searchText];//调用搜索点击的词汇
+		}];
+		[_headerView setSearchTextDidChange:^(NSString * _Nonnull searchText) {
+			if (NullString(searchText)) {
+				ws.isSearch = NO;
+				[ws.voteTableView reloadData];
+			}
+		}];
+    }
+    return _headerView;
+}
+
+-(void)searchRequestText:(NSString *)text
+{
+
+}
+
+- (UIButton *)customerServiceBtn{
+    if (!_customerServiceBtn) {
+        _customerServiceBtn = [[UIButton alloc] init];
+        [_customerServiceBtn setImage:kGetImage(@"app_kfdh_icon") forState:UIControlStateNormal];
+        [_customerServiceBtn addTarget:self action:@selector(customerServiceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _customerServiceBtn;
+}
+
+- (UIButton *)shareBtn{
+    if (!_shareBtn) {
+        _shareBtn = [[UIButton alloc] init];
+        [_shareBtn setImage:kGetImage(@"app_fxtb_icon") forState:UIControlStateNormal];
+        [_shareBtn addTarget:self action:@selector(shareBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _shareBtn;
+}
+
+-(NSMutableArray *)searchDataArray
+{
+	if (!_searchDataArray)  {
+		_searchDataArray = [[NSMutableArray alloc]init];
+	 }
+	return _searchDataArray;
+}
+
+
+-(void)initBackNavItem {
+	UIBarButtonItem *backItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"all_fahuia_btn"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(backClicked:)];
+	self.navigationItem.leftBarButtonItem = backItem;
+	UIBarButtonItem *joinItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"app_cjhd_icon"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(joinClicked:)];
+	self.navigationItem.rightBarButtonItem = joinItem;
+}
+// -------------------  模拟数据 -----------------------------
+
+
+
+#pragma mark - Network
+-(void)requestDataSource
+{
+	TokenModel *token = [TokenModel new];
+	token.method = @"vote";
+	token.auth = @"vote";
+	NSMutableDictionary *parm = [token.dictionary mutableCopy];
+	parm[@"ouid"] = @"0";
+	parm[@"openid"] =  @"0";
+	parm[@"auth"] = @"0";
+	parm[@"sid"] = @"ab22807e5ee23577"; //测试使用
+#warning 此接口需要登录 -----
+	[RequestBaseTool postUrlStr:AppendAPI(APPURL_prefix, @"/vote/index.php")
+					   andParms:parm
+				  andCompletion:^(id obj) {
+					  NSLog(@"输出请求结果：|%@",obj);
+	} Error:^(NSError *errror) {
+		NSLog(@"输出请求结果：|%@",errror);
+	}];
+}
+
+/** 加载数据 */
+- (void)loadData {
+	[self requestDataSource]; //调用请求
+
+	self.view.lgPlaceholder.state = LgPlaceNormalState;
+	for (NSInteger i = 0; i < 20; i ++) {
+		VoteModel *m = [[VoteModel alloc] init];
+		m.icon = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568696188979&di=625b66b9f09b1637201c257bb4ee2a9f&imgtype=0&src=http%3A%2F%2Fpic24.nipic.com%2F20121012%2F6659396_153724664149_2.jpg";
+		m.title = @"晨阳科技晨阳科技晨阳科技晨阳科技晨阳科技晨阳科技晨阳科技晨阳科技";
+		m.brandName = @"晨阳";
+		m.detailTitle = @"长沙探矿机械厂";
+		m.webAddress = @"https://timgsa.baidu.com/timg?image&quality";
+		m.updown = 1;
+		if (i == 3) {
+			m.updown = 2;
+		}
+		m.type = ActivityInProgressState;
+		if (m.type != ActivityNotStartedState &&
+			m.type != ActivityEndOutThreeDayState &&
+			m.type != ActivityUnCoverOutThreeDayState) {
+			m.votenum = @"13212票";
+		}
+
+		m.index = [NSString stringWithFormat:@"%@", @(i + 1)];
+		[self.dataArray addObject:m];
+	}
+	VoteModel*m = self.dataArray[0];
+	if (m.type == 6) {
+		self.voteTableView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"ppsj_bd_dwy_img"]];
+	}
+	[self.voteTableView reloadData];
+}
+
+@end
+

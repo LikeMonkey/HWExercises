@@ -1,0 +1,219 @@
+//
+//  VoteHeaderView.m
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/17.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "VoteHeaderView.h"
+
+@interface VoteHeaderView ()<UITextFieldDelegate>
+{
+	UITextField *_InputTextFiled;
+}
+@property (nonatomic, strong) UIImageView *headerImageView;
+@property (nonatomic, strong) UIView    *searchView;
+@property (nonatomic, strong) UIButton    *joinBtn;
+@property (nonatomic, strong) UIButton    *detailBtn;
+
+
+@end
+
+@implementation VoteHeaderView
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self)
+    {
+        [self addSubview:self.headerImageView];
+        [self addSubview:self.searchView];
+        [self addSubview:self.titleLab];
+        [self addSubview:self.descriptionLab];
+        [self addSubview:self.joinBtn];
+        [self addSubview:self.runLab];
+        [self addSubview:self.detailBtn];
+
+        [self.headerImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.top.right.mas_equalTo(0);
+            make.height.mas_equalTo(px_scale(380));
+        }];
+        
+        [self.searchView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(px_scale(50));
+            make.top.mas_equalTo(px_scale(26));
+            make.right.mas_equalTo(-px_scale(50));
+            make.height.mas_equalTo(px_scale(60));
+        }];
+        
+        [self.titleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(px_scale(50));
+            make.top.equalTo(self.searchView.mas_bottom).offset(px_scale(28));
+            make.right.mas_equalTo(-px_scale(50));
+            make.height.mas_equalTo(px_scale(70));
+        }];
+        
+        [self.descriptionLab mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.titleLab);
+            make.top.equalTo(self.titleLab.mas_bottom).offset(px_scale(0));
+            make.right.equalTo(self.titleLab);
+            make.height.mas_equalTo(px_scale(50));
+        }];
+        
+        [self.joinBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(px_scale(50));
+            make.bottom.mas_equalTo(-px_scale(115));
+            make.width.mas_equalTo(px_scale(180));
+            make.height.mas_equalTo(px_scale(50));
+        }];
+        
+        [self.runLab mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(px_scale(30));
+            make.bottom.mas_equalTo(-px_scale(15));
+            make.right.mas_equalTo(-px_scale(30));
+            make.height.mas_equalTo(px_scale(58));
+        }];
+        
+        [self.detailBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(0);
+            make.bottom.mas_equalTo(0);
+            make.width.height.mas_equalTo(px_scale(100));
+        }];
+        
+        _detailBtn.layer.shadowColor = [UIColor blackColor].CGColor;
+        _detailBtn.layer.shadowOffset = CGSizeMake(0, 0);
+        _detailBtn.layer.shadowOpacity = 0.16;
+        _detailBtn.layer.shadowRadius = px_scale(16);
+
+	   [self registNotification];
+    }
+    return self;
+}
+
+-(void)registNotification
+{
+	[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(headerTextFiledDidChangeText:) name:UITextFieldTextDidChangeNotification object:nil];
+}
+
+
+-(void)headerTextFiledDidChangeText:(NSNotification *)notification
+{
+	if (_InputTextFiled != notification.object) return;
+	!_searchTextDidChange?:_searchTextDidChange(_InputTextFiled.text);//修改了文本
+	if (NullString(_InputTextFiled.text)) {
+		[_InputTextFiled resignFirstResponder];
+	}
+}
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+	!_searchReturnBlock?:_searchReturnBlock(textField.text);//搜索
+	[_InputTextFiled resignFirstResponder];
+	return YES;
+}
+
+#pragma mark - Target Mehtods
+
+- (void)btnClick:(UIButton *)btn{
+    !self.buttonClickBlock?:self.buttonClickBlock(btn);
+}
+
+#pragma mark - ========= get
+
+- (UIImageView *)headerImageView{
+    if (!_headerImageView) {
+        _headerImageView = [[UIImageView alloc] init];
+        _headerImageView.image = kGetImage(@"tpy_banner_img");
+    }
+    return _headerImageView;
+}
+
+- (CycleTitleView *)runLab{
+    if (!_runLab) {
+        _runLab = [[CycleTitleView alloc] init];
+		_runLab.layer.shadowColor = [UIColor colorWithHexString:@"#999999"].CGColor;
+		_runLab.layer.shadowOffset = CGSizeMake(0, 2);
+		_runLab.layer.shadowOpacity = 0.4;
+    }
+    return _runLab;
+}
+
+- (UILabel *)titleLab{
+    if (!_titleLab) {
+        _titleLab = [[UILabel alloc] init];
+        _titleLab.textColor = [UIColor whiteColor];
+        _titleLab.font = [UIFont boldSystemFontOfSize:25];
+    }
+    return _titleLab;
+}
+
+- (UILabel *)descriptionLab{
+    if (!_descriptionLab) {
+        _descriptionLab = [[UILabel alloc] init];
+        _descriptionLab.textColor = [UIColor whiteColor];
+        _descriptionLab.font = [UIFont boldSystemFontOfSize:18];
+    }
+    return _descriptionLab;
+}
+
+- (UIView *)searchView{
+    if (!_searchView) {
+        _searchView = [[UIView alloc] init];
+		_searchView.backgroundColor = [UIColor whiteColor];
+		_searchView.layer.masksToBounds = YES;
+		_searchView.layer.cornerRadius = px_scale(60) / 2.0;
+		UITextField *searchTextFiled = [[UITextField alloc]init];
+		[_searchView addSubview:searchTextFiled];
+		searchTextFiled.placeholder = @"快速找到你喜爱的品牌";
+		searchTextFiled.delegate  = self;
+		searchTextFiled.returnKeyType =  UIReturnKeySearch;
+		searchTextFiled.font = [UIFont systemFontOfSize:13];
+		searchTextFiled.textColor = [UIColor colorWithHexString:@"#666666"];
+		searchTextFiled.enablesReturnKeyAutomatically = YES;//允许自动
+		searchTextFiled.tintColor = [UIColor redColor];
+		_InputTextFiled = searchTextFiled;
+		[searchTextFiled mas_makeConstraints:^(MASConstraintMaker *make) {
+			make.left.mas_equalTo(px_scale(26));
+			make.top.bottom.mas_equalTo(0);
+			make.right.mas_equalTo(-px_scale(26));
+		}];
+    }
+    return _searchView;
+}
+
+- (UIButton *)joinBtn{
+    if (!_joinBtn) {
+        _joinBtn = [[UIButton alloc] init];
+        [_joinBtn setTitle:@"参加活动" forState:UIControlStateNormal];
+        [_joinBtn setTitleColor:[UIColor colorWithHexString:@"#A8251E"] forState:UIControlStateNormal];
+        [_joinBtn setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+        _joinBtn.titleLabel.font = [UIFont systemFontOfSize:14];
+        _joinBtn.backgroundColor = [UIColor whiteColor];
+        _joinBtn.layer.masksToBounds = YES;
+        _joinBtn.layer.cornerRadius = px_scale(50) / 2.0;
+        _joinBtn.tag = 101;
+        [_joinBtn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _joinBtn;
+}
+
+- (UIButton *)detailBtn{
+    if (!_detailBtn) {
+        _detailBtn = [[UIButton alloc] init];
+        _detailBtn.backgroundColor = [UIColor whiteColor];
+        [_detailBtn setTitle:@"活动\n详情" forState:UIControlStateNormal];
+        _detailBtn.titleLabel.font = [UIFont systemFontOfSize:13];
+        _detailBtn.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        [_detailBtn setTitleColor:[UIColor colorWithHexString:@"#666666"] forState:UIControlStateNormal];
+        [_detailBtn setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+//        _detailBtn.layer.masksToBounds = YES;
+        _detailBtn.layer.cornerRadius = px_scale(100) / 2.0;
+        _detailBtn.tag = 102;
+        [_detailBtn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+    }
+    return _detailBtn;
+}
+
+@end

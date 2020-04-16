@@ -1,0 +1,434 @@
+//
+//  VoteTableViewCell.m
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/17.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "VoteTableViewCell.h"
+
+@interface VoteTableViewCell ()
+
+@property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, strong) UIImageView *iconImgView;
+@property (nonatomic, strong) UILabel     *titleLab;
+@property (nonatomic, strong) UILabel     *votenumLab;
+@property (nonatomic, strong) UIButton    *voteBtn;
+@property (nonatomic, strong) UIImageView *tagImgView;
+@property (nonatomic, strong) UILabel     *tagnumLab;
+@property (nonatomic, strong) UIImageView *upOrDownImgView;
+/** 品牌名称 */
+@property (nonatomic,strong) UILabel *brandName;
+/** 公司detatl名字 */
+@property (nonatomic,strong) UILabel *detailTitle;
+/** 网址 */
+@property (nonatomic,strong) UILabel *webAddress;
+
+@end
+
+@implementation VoteTableViewCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_offset(px_scale(20));
+            make.right.mas_offset(px_scale(-20));
+            make.top.mas_offset(px_scale(20));
+            make.bottom.mas_equalTo(self);
+        }];
+        [self setUpUI];
+    }
+    return self;
+}
+
+- (void)setUpUI{
+    [self.contentView addSubview:self.bgView];
+    [self.bgView addSubview:self.iconImgView];
+    [self.bgView addSubview:self.voteBtn];
+    [self.bgView addSubview:self.titleLab];
+    
+    
+    [self.bgView addSubview:self.detailTitle];
+    [self.bgView addSubview:self.webAddress];
+    [self.bgView addSubview:self.brandName];
+    
+    
+    [self.bgView addSubview:self.votenumLab];
+    [self.bgView addSubview:self.upOrDownImgView];
+    [self.iconImgView addSubview:self.tagnumLab];
+    [self.iconImgView addSubview:self.tagImgView];
+    
+    [self.bgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.right.mas_equalTo(0);
+        make.bottom.mas_equalTo(0);
+    }];
+    
+    [self.iconImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(self.bgView);
+        make.width.mas_equalTo(px_scale(204));
+        make.height.mas_equalTo(px_scale(108));
+        make.left.mas_offset(px_scale(20));
+    }];
+
+    [self.voteBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(self.iconImgView);
+        make.right.mas_equalTo(px_scale(-20));
+        make.height.mas_equalTo(px_scale(88));
+        make.width.mas_offset(px_scale(158));
+    }];
+//    [self.voteBtn setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+    
+    [self.titleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.iconImgView.mas_right).offset(px_scale(20));
+        make.right.equalTo(self.voteBtn.mas_left).offset(0);
+        make.bottom.equalTo(self.bgView.mas_centerY).offset(px_scale(-8));
+    }];
+    
+    [self.votenumLab mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.titleLab);
+        make.top.equalTo(self.bgView.mas_centerY).offset(px_scale(8));
+    }];
+    
+    [self.tagnumLab mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(0);
+        make.top.mas_equalTo(0);
+        make.width.height.mas_equalTo(px_scale(36));
+    }];
+    
+    [self.tagImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(0);
+        make.top.mas_equalTo(0);
+//        make.height.width.mas_equalTo(px_scale(36));
+        
+    }];
+    
+    [self.upOrDownImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(self.votenumLab);
+        make.left.equalTo(self.votenumLab.mas_right).offset(px_scale(8));
+        make.width.mas_equalTo(px_scale(20));
+        make.height.mas_equalTo(px_scale(22));
+    }];
+}
+
+- (void)voteBtnClick:(UIButton *)btn{
+    !self.buttonClickBlock?:self.buttonClickBlock(self);
+}
+
+- (void)setModel:(VoteModel *)model{
+    if (model) {
+        _model = model;
+        [self.iconImgView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@", model.icon]] placeholderImage:kGetImage(@"tpsq_btn_img")];
+        self.titleLab.text = [NSString stringWithFormat:@"%@", model.title];
+        self.votenumLab.text = model.votenum;//[NSString stringWithFormat:@"%@", model.votenum];
+        if (!model.votenum) {
+            [self.titleLab mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(self.iconImgView.mas_right).offset(px_scale(20));
+                make.top.mas_equalTo(px_scale(55));
+                make.right.equalTo(self.voteBtn.mas_left).offset(0);
+                make.bottom.mas_equalTo(-px_scale(55));
+            }];
+        }
+        self.tagnumLab.text = [NSString stringWithFormat:@"%@", model.index];
+        if ([model.index integerValue] > 10) {
+            self.tagnumLab.textColor = [UIColor colorWithHexString:@"#999999"];
+            self.tagnumLab.backgroundColor = [UIColor colorWithHexString:@"#E9E9E9"];
+        }
+        else{
+            self.tagnumLab.textColor = [UIColor whiteColor];
+            self.tagnumLab.backgroundColor = [UIColor colorWithHexString:@"#D3141C"];
+        }
+        
+        NSString *imgName = [NSString stringWithFormat:@"jxz_jp%@_icon", model.index];
+        self.tagImgView.image = [UIImage imageNamed:imgName];
+        if (model.updown == 0) {
+            self.upOrDownImgView.hidden = YES;
+        }
+        else if (model.updown == 1){
+            self.upOrDownImgView.image = kGetImage(@"tpjxz_ssjt_icon");
+        }
+        else if (model.updown == 2){
+            self.upOrDownImgView.image = kGetImage(@"tpjxz_xjjt_icon");
+        }
+        
+        if (model.type == 0) { // 活动未开始
+            self.voteBtn.userInteractionEnabled = NO;
+            [self.voteBtn setTitle:@"活动未开始~" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor colorWithHexString:@"#999999"] forState:UIControlStateNormal];
+            [self.voteBtn setBackgroundImage:nil forState:UIControlStateNormal];
+            self.upOrDownImgView.hidden = YES;
+//            self.bgView.image = kGetImage(@"dtbj_hdwk_img");
+
+            [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#E9E9E9"] borderWidth:px_scale(2) cornerRadius:px_scale(10)];
+            
+        }
+        else if (model.type == 1){ // 进行中
+            self.voteBtn.userInteractionEnabled = YES;
+            [self.voteBtn setTitle:@"投票" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [self.voteBtn setBackgroundImage:kGetImage(@"tpsq_btn_img") forState:UIControlStateNormal];
+            self.upOrDownImgView.hidden = NO;
+            [self setIconImgViewBoderStyle:model];
+//            self.bgView.image = kGetImage(@"tpjxz_dw_img");
+        }
+        else if (model.type == 2){ // 活动已结束_三天内
+            self.voteBtn.userInteractionEnabled = NO;
+            [self.voteBtn setTitle:@"已结束~" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor colorWithHexString:@"#999999"] forState:UIControlStateNormal];
+            [self.voteBtn setBackgroundImage:nil forState:UIControlStateNormal];
+            self.upOrDownImgView.hidden = YES;
+            [self setIconImgViewBoderStyle:model];
+//            self.bgView.image = kGetImage(@"tpjxz_dw_img");
+        }
+        else if (model.type == 3){ // 活动已结束_三天后
+            self.voteBtn.userInteractionEnabled = NO;
+            [self.voteBtn setTitle:@"已结束~" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor colorWithHexString:@"#999999"] forState:UIControlStateNormal];
+            [self.voteBtn setBackgroundImage:nil forState:UIControlStateNormal];
+            self.upOrDownImgView.hidden = YES;
+            [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#E9E9E9"] borderWidth:px_scale(2) cornerRadius:px_scale(10)];
+//            self.bgView.image = kGetImage(@"dtbj_hdwk_img");
+
+        }
+        else if (model.type == 4 || model.type == 5){ // 已揭榜_三天内 已揭榜_三天后
+            self.voteBtn.userInteractionEnabled = YES;
+            [self.voteBtn setTitle:@"申请奖牌" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [self.voteBtn setBackgroundImage:kGetImage(@"tpsq_btn_img") forState:UIControlStateNormal];
+            self.upOrDownImgView.hidden = YES;
+            [self setIconImgViewBoderStyle:model];
+//            self.bgView.image = kGetImage(@"tpjxz_dw_img");
+        }
+        else if(model.type == 6){//榜单
+            
+            self.votenumLab.hidden = YES;
+            self.brandName.text = model.brandName;
+            self.detailTitle.text = model.detailTitle;
+            self.webAddress.text = model.webAddress;
+            
+           
+            self.voteBtn.userInteractionEnabled = YES;
+            [self.voteBtn setTitle:@"申请奖牌" forState:UIControlStateNormal];
+            [self.voteBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [self.voteBtn.titleLabel setFont:[UIFont systemFontOfSize:12]];
+            self.voteBtn.backgroundColor = [UIColor colorWithHexString:@"#CD1B22"];
+//            [self.voteBtn setBackgroundImage:kGetIage(@"tpsq_btn_img") forState:UIControlStateNormal];
+
+//           self.voteBtn.hidden = NO;
+            self.upOrDownImgView.hidden = YES;
+            [self setIconImgViewBoderStyle:model];
+//                      self.bgView.image = kGetImage(@"tpjxz_dw_img");
+            [self.iconImgView mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.left.mas_offset(px_scale(20));
+                make.top.mas_offset(px_scale(20));
+                make.width.mas_equalTo(px_scale(204));
+                make.height.mas_equalTo(px_scale(118));
+            }];
+            
+            [self.voteBtn mas_remakeConstraints:^(MASConstraintMaker *make) {
+                           make.top.mas_equalTo(self.iconImgView.mas_top);
+                           make.right.mas_offset(px_scale(-20));
+                           make.width.mas_equalTo(px_scale(114));
+                           make.height.mas_equalTo(px_scale(50));
+                       }];
+        
+            self.voteBtn.layer.cornerRadius =px_scale(25);
+            self.voteBtn.layer.masksToBounds = YES;
+            [self.detailTitle mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.centerY.mas_equalTo(self.bgView);
+                make.left.equalTo(self.iconImgView.mas_right).offset(px_scale(20));
+            }];
+            [self.titleLab mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(self.iconImgView.mas_right).offset(px_scale(20));
+                make.bottom.mas_equalTo(self.detailTitle.mas_top).mas_offset(px_scale(-18));
+                make.right.mas_equalTo(self.voteBtn.mas_left);
+                      }];
+            [self.webAddress mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(self.iconImgView.mas_right).offset(px_scale(20));
+                make.top.mas_equalTo(self.detailTitle.mas_bottom).offset(px_scale(18));
+                make.right.mas_offset(px_scale(-15));
+            }];
+            [self.brandName mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.centerX.mas_equalTo(self.iconImgView.mas_centerX);
+                make.top.mas_equalTo(self.iconImgView.mas_bottom).offset(px_scale(14));
+                make.bottom.mas_equalTo(self.bgView.mas_bottom).mas_offset(px_scale(-14));
+            }];
+            
+        }
+        
+        
+        if (model.type != 0 && model.type != 3) {
+            if ([model.index integerValue] < 4) {
+                self.tagnumLab.hidden = YES;
+            }
+            else{
+                self.tagnumLab.hidden = NO;
+            }
+            
+            if ([model.index integerValue] > 3) {
+                self.tagImgView.hidden = YES;
+            }
+            else{
+               self.tagImgView.hidden = NO;
+            }
+        }
+        else{
+            self.tagnumLab.hidden = YES;
+            self.tagImgView.hidden = YES;
+        }
+    }
+}
+
+- (void)setIconImgViewBoderStyle:(VoteModel *)m{
+    if ([m.index integerValue] == 1) {
+        [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#FAE04B"] borderWidth:px_scale(6) cornerRadius:px_scale(10)];
+    }
+    else if ([m.index integerValue] == 2){
+        [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#AEAEAE"] borderWidth:px_scale(6) cornerRadius:px_scale(10)];
+    }
+    else if ([m.index integerValue] == 3){
+        [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#F4AE83"] borderWidth:px_scale(6) cornerRadius:px_scale(10)];
+    }
+    else{
+        [self iconImgViewBoderColor:[UIColor colorWithHexString:@"#E9E9E9"] borderWidth:px_scale(2) cornerRadius:px_scale(10)];
+    }
+}
+
+- (void)iconImgViewBoderColor:(UIColor *)color borderWidth:(CGFloat)borderWidth cornerRadius:(CGFloat)cornerRadius{
+    self.iconImgView.layer.cornerRadius = cornerRadius;
+    self.iconImgView.layer.borderColor = color.CGColor;
+    self.iconImgView.layer.borderWidth = borderWidth;
+}
+
+#pragma mark - ========= get
+
+- (UIView *)bgView{
+    if (!_bgView) {
+        _bgView = [[UIView alloc] init];
+        _bgView.backgroundColor = [UIColor whiteColor];
+        _bgView.layer.cornerRadius = 10;
+        _bgView.layer.masksToBounds =YES;
+    }
+    return _bgView;
+}
+
+- (UIImageView *)iconImgView{
+    if (!_iconImgView) {
+        _iconImgView = [[UIImageView alloc] init];
+        _iconImgView.layer.masksToBounds = YES;
+        _iconImgView.layer.cornerRadius = px_scale(10);
+        _iconImgView.layer.borderColor = [UIColor colorWithHexString:@"#E9E9E9"].CGColor;
+        _iconImgView.layer.borderWidth = px_scale(2);
+    }
+    return _iconImgView;
+}
+
+- (UILabel *)titleLab{
+    if (!_titleLab) {
+        _titleLab = [[UILabel alloc] init];
+        _titleLab.textColor = [UIColor colorWithHexString:@"#333333"];
+        _titleLab.font = [UIFont boldSystemFontOfSize:16];
+        _titleLab.text = @"-";
+        _titleLab.numberOfLines = 1;
+    }
+    return _titleLab;
+}
+
+- (UILabel *)votenumLab{
+    if (!_votenumLab) {
+        _votenumLab = [[UILabel alloc] init];
+        _votenumLab.textColor = [UIColor colorWithHexString:@"#666666"];
+        _votenumLab.font = [UIFont systemFontOfSize:12];
+        _votenumLab.numberOfLines = 1;
+    }
+    return _votenumLab;
+}
+
+- (UIButton *)voteBtn{
+    if (!_voteBtn) {
+        _voteBtn = [[UIButton alloc] init];
+        [_voteBtn setBackgroundImage:kGetImage(@"tpsq_btn_img") forState:UIControlStateNormal];
+        _voteBtn.titleLabel.font = [UIFont systemFontOfSize:13];
+        [_voteBtn addTarget:self action:@selector(voteBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _voteBtn;
+}
+
+- (UILabel *)tagnumLab{
+    if (!_tagnumLab) {
+        _tagnumLab = [[UILabel alloc] init];
+        _tagnumLab.textColor = [UIColor whiteColor];
+        _tagnumLab.backgroundColor = [UIColor colorWithHexString:@"#D3141C"];
+        _tagnumLab.font = [UIFont boldSystemFontOfSize:11];
+        _tagnumLab.textAlignment = NSTextAlignmentCenter;
+    }
+    return _tagnumLab;
+}
+
+
+- (UIImageView *)tagImgView
+{
+    if (!_tagImgView) {
+        _tagImgView = [[UIImageView alloc] init];
+    }
+    return _tagImgView;
+}
+
+- (UIImageView *)upOrDownImgView
+{
+    if (!_upOrDownImgView) {
+        _upOrDownImgView = [[UIImageView alloc] init];
+    }
+    return _upOrDownImgView;
+}
+
+- (UILabel *)brandName {
+    if (!_brandName) {
+        _brandName = [[UILabel alloc]init];
+        _brandName.textColor = [UIColor colorWithHexString:@"#333333"];
+        _brandName.textAlignment = NSTextAlignmentCenter;
+        _brandName.font = [UIFont boldSystemFontOfSize:15];
+    }
+    return _brandName;
+}
+
+- (UILabel *)detailTitle {
+    if (!_detailTitle) {
+        _detailTitle = [[UILabel alloc]init];
+        _detailTitle.textColor = [UIColor colorWithHexString:@"#333333"];
+        _detailTitle.textAlignment = NSTextAlignmentLeft;
+        _detailTitle.font = [UIFont systemFontOfSize:12];
+    }
+    return _detailTitle;
+}
+
+- (UILabel *)webAddress {
+    if (!_webAddress) {
+        _webAddress = [[UILabel alloc]init];
+        _webAddress.textColor = [UIColor colorWithHexString:@"#333333"];
+        _webAddress.textAlignment = NSTextAlignmentLeft;
+         _webAddress.font = [UIFont systemFontOfSize:12];
+    }
+    return _webAddress;
+}
+- (void)setFrame:(CGRect)frame{
+    frame.origin.x = px_scale(15);
+    frame.size.width = MAINScreenWidth - px_scale(15) * 2;
+    [super setFrame:frame];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

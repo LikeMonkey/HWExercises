@@ -1,0 +1,61 @@
+//
+//  MineViewController.m
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/16.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "MineViewController.h"
+
+@interface MineViewController ()
+@property (nonatomic,strong)UITableView *myTableView;
+@end
+
+@implementation MineViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	[self loadBgImage];
+	[self initNavView];
+	self.navView.backgroundColor=[[UIColor whiteColor]colorWithAlphaComponent:0];
+	self.lineView.hidden = YES;
+	[self setUpUI];
+}
+-(void)setUpUI
+{
+	[self.view addSubview:self.myTableView];
+	[_myTableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
+	[self.myTableView mas_makeConstraints:^(MASConstraintMaker *make) {
+		make.edges.equalTo(self.view);
+	}];
+}
+
+#pragma mark - getter
+-(UITableView *)myTableView {
+	if (!_myTableView)  {
+		_myTableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+		_myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+		_myTableView.backgroundColor = [[UIColor whiteColor]colorWithAlphaComponent:0];
+	 }
+	return _myTableView;
+}
+
+-(void)loadBgImage
+{
+	UIImage *image = [UIImage imageNamed:@"wd_bg_img"];
+	UIImageView *bgImgV = [UIImageView new];
+	bgImgV.image = image;
+	[self.view addSubview:bgImgV];
+	[bgImgV mas_makeConstraints:^(MASConstraintMaker *make) {
+		make.top.left.right.mas_equalTo(0);
+		make.height.mas_equalTo(px_scale(1334));
+	}];
+}
+
+
+
+
+
+
+@end

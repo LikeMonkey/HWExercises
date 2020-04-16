@@ -1,0 +1,24 @@
+target ‘ZhongQiBrand’ do
+    platform :ios, '8.0'
+	#   YYModel 数据解析工具
+	pod 'YYModel', '~> 1.0.4'
+	#   约束第三方
+	pod 'Masonry', '~> 1.0.2'
+	#键盘控件
+	pod 'IQKeyboardManager', '~> 6.2.0'
+	pod 'MJRefresh'
+	# 基础依赖集成 
+	pod 'UMCCommon'
+	pod 'UMCSecurityPlugins'
+	# 集成微信(完整版14.4M)
+	pod 'UMCShare/Social/ReducedWeChat'
+       # 集成微信官方SDK
+  pod 'WechatOpenSDK'
+	# 推送集成
+	pod 'UMCPush'
+  
+  pod 'JKCountDownButton'
+	#pod 'Bugly' bug获取
+	pod 'Bugly'
+
+end

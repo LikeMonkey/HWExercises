@@ -1,0 +1,322 @@
+//
+//  text.h
+//  giftDemo
+//
+//  Created by ios 001 on 2019/10/11.
+//  Copyright © 2019 flymanshow. All rights reserved.
+//
+
+#import "GiftView.h"
+#import "CollectionViewFlowLayout.h"
+#define kUIFont(size)    [UIFont systemFontOfSize:size]
+#define padding px_scale(12)
+#define GiftHeight px_scale(749)
+
+@interface CollectionCell : UICollectionViewCell
+/**礼物图 */
+@property(nonatomic,strong) UIImageView *iconImg;
+/** 礼物名称 */
+@property(nonatomic,strong) UILabel *titleLabel;
+/** 贡献数量 */
+@property(nonatomic,strong) UILabel *disNum;
+/** 左上角价钱小图 */
+@property (nonatomic,strong) UIImageView * priceView;
+/** 价钱 */
+@property (nonatomic,strong) UILabel *price;
+@end
+
+@implementation CollectionCell
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.contentView.layer.cornerRadius = px_scale(10);
+        self.contentView.layer.masksToBounds=YES;
+        self.contentView.layer.borderWidth = 1.0f;
+        self.contentView.layer.borderColor = [UIColor colorWithHexString:@"#CECECE"].CGColor;
+        self.titleLabel = [[UILabel alloc] init];
+        self.titleLabel.textAlignment = NSTextAlignmentCenter;
+        self.titleLabel.textColor = [UIColor blackColor];
+        self.titleLabel.font = [UIFont boldSystemFontOfSize:px_scale(24)];
+        
+        self.iconImg = [[UIImageView alloc]init];
+        
+        self.disNum = [[UILabel alloc]init];
+        self.disNum.textColor = [UIColor colorWithHexString:@"#C03128"];
+        self.disNum.font = [UIFont systemFontOfSize:px_scale(20)];
+        
+        self.priceView = [[UIImageView alloc]init];
+        [self.priceView setImage:[UIImage imageNamed:@"gift_pasj_slwy_dt_img"]];
+        
+        self.price = [[UILabel alloc]init];
+        self.price.textAlignment  = NSTextAlignmentLeft;
+        self.price.textColor = [UIColor whiteColor];
+        self.price.font = [UIFont systemFontOfSize:px_scale(24)];
+        
+        [self.contentView addSubview:self.iconImg];
+        [self.contentView addSubview:self.titleLabel];
+        [self.contentView addSubview:self.disNum];
+        [self.contentView addSubview:self.priceView];
+        [self.contentView addSubview:self.price];
+        
+        [self.iconImg mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(self.contentView);
+            make.top.mas_offset(px_scale(18));
+            make.height.width.mas_equalTo(px_scale(110));
+        }];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.iconImg.mas_bottom);
+            make.centerX.mas_equalTo(self.iconImg);
+        }];
+        [self.disNum mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.titleLabel.mas_bottom);
+            make.centerX.mas_equalTo(self.titleLabel);
+        }];
+        [self.priceView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.top.mas_offset(0);
+        }];
+        [self.price mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(self.priceView);
+            make.left.mas_offset(0);
+        }];
+        
+    }
+    return self;
+}
+
+@end
+
+@interface GiftView()<UICollectionViewDelegate,UICollectionViewDataSource>
+@property(nonatomic,strong)UICollectionView *collectionView;
+@property(nonatomic, strong) NSArray *items;
+/** 背景图 */
+@property (nonatomic,strong) UIView *bgView;
+
+/** 可点击视图 */
+@property (nonatomic,strong) UIView *gesbView;
+//@property(nonatomic, assign) NSUInteger pageCount;
+//@property(nonatomic,strong)UIPageControl *PageControl;
+@end
+
+@implementation GiftView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [[UIColor blackColor]colorWithAlphaComponent:0.5];
+        self.bgView  = [[UIView alloc]init];
+        self.bgView.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.bgView];
+        [self.bgView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.mas_equalTo(self);
+            make.bottom.mas_equalTo(self.mas_bottom);
+            make.height.mas_equalTo(GiftHeight);
+        }];
+        [self addSubview:self.gesbView];
+        self.title = [[UILabel alloc]init];
+        self.title.text = @"送礼物";
+        self.title.textColor = [UIColor blackColor];
+        self.title.font = [UIFont boldSystemFontOfSize:px_scale(32)];
+        self.title.textAlignment = NSTextAlignmentCenter;
+        
+        [self.bgView addSubview:self.title];
+        [self.title mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(self.bgView);
+            make.top.mas_offset(px_scale(30));
+        }];
+        UICollectionViewFlowLayout *layout =[[UICollectionViewFlowLayout alloc]init];
+        
+        layout.itemSize = CGSizeMake((MAINScreenWidth-px_scale(60+24))/3, px_scale(200));
+        layout.minimumInteritemSpacing = px_scale(12);
+        layout.minimumLineSpacing = px_scale(12);
+        layout.sectionInset = UIEdgeInsetsMake(0, px_scale(30), 0, px_scale(30));
+        layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        
+        UICollectionView *collectionView =[[UICollectionView alloc] initWithFrame:CGRectMake(0,px_scale(105), MAINScreenWidth,px_scale(412))
+                                                             collectionViewLayout:layout];
+        collectionView.dataSource = self;
+        collectionView.delegate = self;
+        //  collectionView.pagingEnabled = YES;
+        collectionView.showsHorizontalScrollIndicator = NO;
+        
+        [collectionView registerClass:[CollectionCell class]
+           forCellWithReuseIdentifier:@"Cell"];
+        self.collectionView = collectionView;
+        [self.bgView addSubview:self.collectionView];
+        
+        
+        
+        self.honerLabel = [[UILabel  alloc]init];
+        self.honerLabel.text = @"荣誉勋章 x";
+        self.honerLabel.textAlignment = NSTextAlignmentLeft;
+        self.honerLabel.textColor = [UIColor blackColor];
+        self.honerLabel.font = [UIFont boldSystemFontOfSize:px_scale(24)];
+        
+        [self.bgView addSubview:self.honerLabel];
+        [self.honerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_offset(px_scale(30));
+            make.top.mas_equalTo(self.collectionView.mas_bottom).mas_offset(px_scale(36));
+        }];
+        self.DownBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.DownBtn setTitleColor:[UIColor colorWithHexString:@"#666666"] forState:UIControlStateNormal];
+        [self.DownBtn setTitle:@"-" forState:UIControlStateNormal];
+        self.DownBtn.tag = 0;
+        self.DownBtn.backgroundColor = [UIColor colorWithHexString:@"#F5F5F5"];
+        self.DownBtn.titleLabel.font = kUIFont(px_scale(36));
+        self.DownBtn.layer.cornerRadius = px_scale(10);
+        self.DownBtn.layer.masksToBounds =YES;
+        
+        [self.bgView addSubview:self.DownBtn];
+        [self.DownBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(self.honerLabel);
+            make.left.mas_equalTo(self.honerLabel.mas_right).mas_offset(px_scale(10));
+            make.height.width.mas_equalTo(px_scale(50));
+        }];
+        
+        self.giftNum = [[UILabel alloc]init];
+        self.giftNum.backgroundColor = [UIColor colorWithHexString:@"#F5F5F5"];
+        self.giftNum.font = [UIFont boldSystemFontOfSize:px_scale(28)];
+        self.giftNum.textColor = [UIColor colorWithHexString:@"#C03128"];
+        self.giftNum.textAlignment = NSTextAlignmentCenter;
+        self.giftNum.layer.cornerRadius = px_scale(10);
+        self.giftNum.layer.masksToBounds = YES;
+        self.giftNum.text = @"0";
+        
+        [self.bgView addSubview:self.giftNum];
+        [self.giftNum mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(self.DownBtn);
+            make.left.mas_equalTo(self.DownBtn.mas_right).mas_offset(px_scale(10));
+            
+        }];
+        
+        self.UpBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.UpBtn setTitleColor:[UIColor colorWithHexString:@"#666666"] forState:UIControlStateNormal];
+        [self.UpBtn setTitle:@"+" forState:UIControlStateNormal];
+        self.UpBtn.tag = 1;
+        self.UpBtn.backgroundColor = [UIColor colorWithHexString:@"#F5F5F5"];
+        self.UpBtn.titleLabel.font = kUIFont(px_scale(36));
+        self.UpBtn.layer.cornerRadius = px_scale(10);
+        self.UpBtn.layer.masksToBounds =YES;
+        
+        [self.bgView addSubview:self.UpBtn];
+        [self.UpBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(self.giftNum);
+            make.left.mas_equalTo(self.giftNum.mas_right).mas_offset(px_scale(10));
+            make.height.width.mas_equalTo(px_scale(50));
+        }];
+        
+        self.totalNum = [[UILabel  alloc]init];
+        self.totalNum.text = @"合计:¥198";
+        self.totalNum.textAlignment = NSTextAlignmentLeft;
+        self.totalNum.textColor = [UIColor blackColor];
+        self.totalNum.font = [UIFont boldSystemFontOfSize:px_scale(24)];
+        [self.bgView addSubview:self.totalNum];
+        [self.totalNum mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_offset(px_scale(-30));
+            make.top.mas_equalTo(self.collectionView.mas_bottom).mas_offset(px_scale(36));
+        }];
+        
+        self.ticketsNum = [[UILabel  alloc]init];
+        self.ticketsNum.text = @"-票";
+        self.ticketsNum.textAlignment = NSTextAlignmentLeft;
+        self.ticketsNum.textColor = [UIColor blackColor];
+        self.ticketsNum.font = [UIFont boldSystemFontOfSize:px_scale(24)];
+        
+        [self.bgView addSubview:self.ticketsNum];
+        [self.ticketsNum mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(self.totalNum);
+            make.right.mas_equalTo(self.totalNum.mas_left).mas_offset(px_scale(-36));
+        }];
+    }
+    self.sendBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.bgView addSubview:self.sendBtn];
+    [self.sendBtn setTitle:@"贡献品牌力量" forState:UIControlStateNormal];
+    [self.sendBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.sendBtn setBackgroundColor:[UIColor colorWithHexString:@"#D3141C"]];
+    [self.sendBtn.titleLabel setFont:[UIFont boldSystemFontOfSize:px_scale(30)]];
+    [self.sendBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.honerLabel.mas_bottom).mas_offset(px_scale(32));
+        make.left.mas_offset(px_scale(30));
+        make.right.mas_offset(px_scale(-30));
+        make.height.mas_equalTo(px_scale(88));
+    }];
+    self.sendBtn.layer.cornerRadius = px_scale(44);
+    self.sendBtn.layer.masksToBounds = YES;
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:self.bgView.bounds byRoundingCorners:UIRectCornerTopLeft|UIRectCornerTopRight cornerRadii:CGSizeMake(px_scale(30), px_scale(30))];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc]init];
+    maskLayer.frame = self.bgView.bounds;
+    maskLayer.path = path.CGPath;
+    self.bgView.layer.mask = maskLayer;
+    return self;
+}
+-(void)show{
+      [[[UIApplication sharedApplication].delegate window ] addSubview:self];
+      self.bgView.transform = CGAffineTransformMakeTranslation(0.01,GiftHeight);
+      [UIView animateWithDuration:0.5 animations:^{
+          self.bgView.transform = CGAffineTransformMakeTranslation(0.01, 0.01);
+      }];
+}
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView
+     numberOfItemsInSection:(NSInteger)section {
+    
+    return 6;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView
+                  cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *identifierCell = @"Cell";
+    CollectionCell *cell = nil;
+    
+    cell = [collectionView dequeueReusableCellWithReuseIdentifier:identifierCell
+                                                     forIndexPath:indexPath];
+    cell.titleLabel.text = @"福袋";
+    [cell.iconImg setImage:[UIImage imageNamed:@"gift_slw_fdz_img"]];
+    cell.disNum .text= @"贡献666力量";
+    cell.price.text  = @"¥66";
+    
+    //选中部分边框变色
+    UIView* selectedBGView = [[UIView alloc] initWithFrame:cell.bounds];
+    selectedBGView.layer.cornerRadius = px_scale(10);
+    selectedBGView.layer.masksToBounds=YES;
+    selectedBGView.layer.borderWidth = 1.0f;
+    selectedBGView.backgroundColor = [UIColor clearColor];
+    selectedBGView.layer.borderWidth = px_scale(4);
+    selectedBGView.layer.borderColor = [UIColor colorWithHexString:@"#C03128"].CGColor;
+    cell.selectedBackgroundView = selectedBGView;
+    
+    return cell;
+}
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    
+    self.selectedIndex = indexPath;
+    
+}
+- (UIView *)gesbView {
+    if (!_gesbView) {
+        _gesbView.backgroundColor = [UIColor clearColor];;
+        _gesbView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, MAINScreenWidth,MAINScreenHeight-px_scale(749))];
+        _gesbView.userInteractionEnabled = YES;
+        UITapGestureRecognizer *singalTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hiddenGiftView)];
+        [_gesbView addGestureRecognizer:singalTap];;
+    }
+    return _gesbView;
+}
+
+-(void)hiddenGiftView{
+     [UIView animateWithDuration:0.5 animations:^{
+            self.bgView.transform = CGAffineTransformMakeTranslation(0.01,GiftHeight);
+        } completion:^(BOOL finished) {
+           
+            [self removeFromSuperview];
+        }];
+}
+
+
+@end

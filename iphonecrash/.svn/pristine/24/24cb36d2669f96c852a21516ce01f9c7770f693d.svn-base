@@ -1,0 +1,1 @@
+link ../../../YYModel/YYModel/NSObject+YYModel.h

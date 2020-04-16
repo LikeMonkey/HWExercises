@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="U6b-Vx-4bR" customClass="SearchCollectionReusableView">
+            <rect key="frame" x="0.0" y="0.0" width="423" height="110"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="历史搜索" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BcH-Gw-hyU">
+                    <rect key="frame" x="15" y="70" width="68" height="17"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="17" id="orP-1D-ht0"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="17"/>
+                    <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SSW-PF-fIT">
+                    <rect key="frame" x="342" y="67.5" width="60" height="22"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="GSd-CN-3hm"/>
+                    </constraints>
+                    <state key="normal" image="rmbd_scls_icon"/>
+                    <connections>
+                        <action selector="clearClicked:" destination="U6b-Vx-4bR" eventType="touchUpInside" id="oOy-Jv-5xg"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="SSW-PF-fIT" secondAttribute="trailing" constant="21" id="9Fc-Q6-kbO"/>
+                <constraint firstItem="SSW-PF-fIT" firstAttribute="centerY" secondItem="BcH-Gw-hyU" secondAttribute="centerY" id="FZm-T1-tyJ"/>
+                <constraint firstAttribute="bottom" secondItem="BcH-Gw-hyU" secondAttribute="bottom" constant="23" id="GlU-yi-ADh"/>
+                <constraint firstItem="BcH-Gw-hyU" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="15" id="x0S-id-kxh"/>
+            </constraints>
+            <connections>
+                <outlet property="clearBtn" destination="SSW-PF-fIT" id="cUg-dS-l8L"/>
+                <outlet property="titleLable" destination="BcH-Gw-hyU" id="evt-6F-zi0"/>
+            </connections>
+            <point key="canvasLocation" x="-18.399999999999999" y="87.256371814092958"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <image name="rmbd_scls_icon" width="15" height="16"/>
+    </resources>
+</document>

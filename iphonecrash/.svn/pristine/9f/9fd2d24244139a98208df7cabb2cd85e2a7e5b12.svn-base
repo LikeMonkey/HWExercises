@@ -1,0 +1,429 @@
+//
+//  VoteBrandCardViewController.m
+//  ZhongQiBrand
+//
+//  Created by ios 001 on 2019/10/21.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "VoteBrandCardViewController.h"
+
+@interface VoteBrandCardViewController ()
+/** 背景 */
+@property (nonatomic,strong) UIView *bgView;
+/** 红色背景 */
+@property (nonatomic,strong) UIImageView *redImageView;
+/** 白色背景    */
+@property (nonatomic,strong)  UIImageView*whiteImageView;
+/** flag图片 */
+@property (nonatomic,strong) UIImageView *flagImageView;
+/** 排名 */
+@property (nonatomic,strong) UILabel *rankNum;
+/** 行业 */
+@property (nonatomic,strong) UILabel *professionLabel;
+/** 品牌图标 */
+@property (nonatomic,strong) UIImageView *brandIcon;
+/** 品牌名称 */
+@property (nonatomic,strong) UILabel *brandName;
+/** 公司名称 */
+@property (nonatomic,strong) UILabel *companyLabel;
+/** 公司地址 */
+@property (nonatomic,strong) UILabel *addressLabel;
+/** 网址 */
+@property (nonatomic,strong) UILabel *webLabel;
+/** 用户头像 */
+@property (nonatomic,strong) UIImageView *userIcon;
+/** 用户名称 */
+@property (nonatomic,strong) UILabel *useName;
+/** 红色标语 */
+@property (nonatomic,strong) UILabel *flagitle;
+/**二维码 */
+@property (nonatomic,strong) UIImageView *QRImage;
+/** 保存 */
+@property (nonatomic,strong) UIButton *saveBtn;
+/** 匿名 */
+@property (nonatomic,strong) UILabel *UnKnow;
+/** switch */
+@property (nonatomic,strong) UISwitch *UnKnowSwitch;
+/** 分享页面 */
+@property (nonatomic,strong) SharePopView *popView;
+@end
+
+@implementation VoteBrandCardViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.navigationItem.title = @"品牌名片";
+    [self initNavView];
+    [self initBackNavItem];
+    [self setUpUI];
+    self.rankNum .text  = @"1";
+    self.professionLabel.text = @"润滑油行业";
+    [self.brandIcon sd_setImageWithURL:[NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568696188979&di=625b66b9f09b1637201c257bb4ee2a9f&imgtype=0&src=http%3A%2F%2Fpic24.nipic.com%2F20121012%2F6659396_153724664149_2.jpg"] placeholderImage:kGetImage(@"tpsq_btn_img")];
+    self.brandName.text = @"晨阳科技";
+    self.companyLabel.text = [NSString stringWithFormat:@"名称:  %@",@"天津市得秀丽有限任公司"];
+    self.addressLabel.text = [NSString stringWithFormat:@"地址:  %@",@"天津市经济开发区"];
+    self.webLabel.text = [NSString stringWithFormat:@"网址:  %@",@"https://www.baidu.com"];
+    self.userIcon.backgroundColor = [UIColor redColor];
+    self.useName.text = @"猪八戒";
+    [self.flagitle setText:@"来品牌网为得秀丽品牌贡献力量"];
+    
+    
+}
+
+-(void)initBackNavItem {
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"all_fahuia_btn"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(backClicked:)];
+    self.navigationItem.leftBarButtonItem = backItem;
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"ppsj_ppmp_fxtb_icon"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:(UIBarButtonItemStylePlain) target:self action:@selector(ShareClicked:)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+}
+-(void)setUpUI{
+    
+    self.lineView.hidden = YES;
+    [self.view addSubview:self.bgView];
+    [self.view addSubview:self.saveBtn];
+    [self.view addSubview:self.UnKnow];
+    [self.view addSubview:self.UnKnowSwitch];
+    
+    [self.bgView addSubview:self.redImageView];
+    [self.bgView addSubview:self.whiteImageView];
+    
+    [self.redImageView addSubview:self.flagImageView];
+    [self.flagImageView addSubview:self.rankNum];
+    [self.redImageView addSubview:self.professionLabel];
+    [self.redImageView addSubview:self.brandIcon];
+    [self.redImageView addSubview:self.brandName];
+    [self.redImageView addSubview:self.companyLabel];
+    [self.redImageView addSubview:self.addressLabel];
+    [self.redImageView addSubview:self.webLabel];
+    
+    [self.whiteImageView addSubview:self.userIcon];
+    [self.whiteImageView addSubview:self.useName];
+    [self.whiteImageView addSubview:self.flagitle];
+    [self.whiteImageView addSubview:self.QRImage];
+    
+    [self.bgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_offset(0);
+        make.top.mas_equalTo(self.navView.mas_bottom);
+        make.height.mas_equalTo(px_scale(1026+24));
+    }];
+    [self.saveBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(30));
+        make.right.mas_offset(px_scale(-30));
+        make.height.mas_equalTo(px_scale(88));
+        make.top.mas_equalTo(self.bgView.mas_bottom).mas_offset(px_scale(18));
+    }];
+    [self.redImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.bgView);
+        make.top.mas_offset(15);
+        make.width.mas_equalTo(MAINScreenWidth);
+    }];
+    
+    [self.whiteImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.bgView);
+        make.top.mas_equalTo(self.redImageView.mas_bottom).mas_offset(-px_scale(70));
+        make.width.mas_equalTo(MAINScreenWidth);
+    }];
+    [self.flagImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(36*2));
+        make.top.mas_offset(px_scale(55));
+    }];
+    [self.rankNum mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.flagImageView);
+        make.top.mas_offset(px_scale(24));
+       
+    }];
+    [self.professionLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(36*2));
+        make.top.mas_equalTo(self.flagImageView.mas_bottom).mas_offset(px_scale(30));
+    }];
+    [self.brandIcon mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(36*2));
+        make.top.mas_equalTo(self.professionLabel.mas_bottom).mas_offset(px_scale(44));
+        make.width.mas_equalTo(px_scale(214));
+        make.height.mas_equalTo(px_scale(114));
+    }];
+    [self.brandName mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(self.brandIcon);
+        make.left.mas_equalTo(self.brandIcon.mas_right).mas_offset(px_scale(30));
+    }];
+    [self.companyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(36*2));
+        make.top.mas_equalTo(self.brandIcon.mas_bottom).mas_offset(px_scale(30));
+        
+    }];
+    [self.addressLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.companyLabel);
+        make.top.mas_equalTo(self.companyLabel.mas_bottom).mas_offset(px_scale(8));
+    }];
+    [self.webLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.addressLabel);
+        make.top.mas_equalTo(self.addressLabel.mas_bottom).mas_offset(px_scale(8));
+    }];
+    [self.userIcon mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_offset(px_scale(36*2));
+        make.top.mas_offset(px_scale(24*2));
+        make.height.width.mas_equalTo(px_scale(68));
+        
+    }];
+    [self.useName mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(self.userIcon);
+        make.left.mas_equalTo(self.userIcon.mas_right).mas_offset(px_scale(32));
+    }];
+    [self.flagitle mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.userIcon);
+        make.top.mas_equalTo(self.userIcon.mas_bottom).mas_offset(px_scale(24));
+    }];
+    [self.QRImage mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.mas_equalTo(self.whiteImageView.mas_bottom).mas_offset(px_scale(-32*2));
+        make.left.mas_offset(px_scale(36*2));
+        make.height.width.mas_equalTo(px_scale(132));
+    }];
+    //转换坐标系
+    [self.view layoutIfNeeded];
+    CGRect UnKnowRect = [self.whiteImageView convertRect:self.useName.frame toView:self.view];
+    
+    [self.UnKnow mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_offset(-px_scale(36*2));
+        make.top.mas_offset(CGRectGetMaxY(UnKnowRect));
+    }];
+    [self.UnKnowSwitch mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.UnKnow.mas_right);
+        make.top.mas_equalTo(self.UnKnow.mas_bottom);
+        make.height.mas_equalTo(px_scale(48));
+        make.width.mas_equalTo(px_scale(80));
+    }];
+    
+}
+
+#pragma mark ——— Method
+-(void)backClicked:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+-(void)ShareClicked:(id)sender
+{
+    // 分享
+          SharePopView *popV =[SharePopView showShare];
+          [popV setShareAction:^(ShareType type, id shareImge) {
+          [ShareManager shareWithType:(UMSocialPlatformType)type
+                                 andImage:@""
+                            andShareTitle:@"测试数据"
+                              andShareUrl:@""
+                             andShareDesc:@"这是一条分享的测试数据"
+                            andCompletion:^(BOOL isSuccess) {
+                                NSLog(@"分享结果回调");
+                            }];
+          }];
+}
+-(void)saveBtnClick:(id)sender
+{
+    UIGraphicsBeginImageContext(self.bgView.bounds.size); //currentView当前的view
+    
+    [self.bgView.layer renderInContext:UIGraphicsGetCurrentContext()];
+    
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    UIImageWriteToSavedPhotosAlbum(viewImage, nil, nil, nil);
+    
+    NSLog(@"保存相册成功");
+    [WDAlert showAlertWithMessage:@"相册保存成功" time:0.5f];
+    
+}
+-(void)mySwtichValueChange:(UISwitch*)MySwitch{
+    if (MySwitch.on == YES) {
+        NSLog(@"开启状态");
+        self.userIcon.hidden = YES;
+        self.useName.hidden = YES;
+        [self.flagitle mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_offset(px_scale(64));
+            make.top.mas_offset(px_scale(100));
+        }];
+    }else {
+        NSLog(@"关闭状态");
+        self.userIcon.hidden = NO;
+        self.useName.hidden = NO;
+        [self.flagitle mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(self.userIcon);
+            make.top.mas_equalTo(self.userIcon.mas_bottom).mas_offset(px_scale(24));
+        }];
+    }
+    
+}
+#pragma mark ——— lazy
+
+- (UIView *)bgView {
+    if (!_bgView) {
+        _bgView = [[UIView alloc]init];
+        
+    }
+    return _bgView;
+}
+- (UIImageView *)redImageView {
+    if (!_redImageView) {
+        _redImageView = [[UIImageView alloc]init];
+        [_redImageView setImage:[UIImage imageNamed:@"ppsj_fxmp_dt_img"]];
+     
+        
+    }
+    return _redImageView;
+}
+
+- (UIImageView *)whiteImageView {
+    if (!_whiteImageView) {
+        _whiteImageView = [[UIImageView alloc]init];
+        [_whiteImageView setImage:[UIImage imageNamed:@"ppsj_sdpp_xmdt_img"]];
+    
+    }
+    return _whiteImageView;
+}
+
+- (UIImageView *)flagImageView {
+    if (!_flagImageView) {
+        _flagImageView = [[UIImageView alloc]init];
+        [_flagImageView setImage:[UIImage imageNamed:@"ppsj_top_dtmk_icon"]];
+    }
+    return _flagImageView;
+}
+
+- (UILabel *)rankNum {
+    if (!_rankNum) {
+        _rankNum = [[UILabel alloc]init];
+        [_rankNum setTextColor:[UIColor colorWithHexString:@"#D3141C"]];
+        [_rankNum setFont:[UIFont boldSystemFontOfSize:px_scale(32)]];
+        _rankNum.textAlignment = NSTextAlignmentCenter;
+       
+    }
+    return _rankNum;
+}
+- (UILabel *)professionLabel {
+    if (!_professionLabel) {
+        _professionLabel = [[UILabel alloc]init];
+        [_professionLabel setTextColor:[UIColor whiteColor]];
+        [_professionLabel setFont:[UIFont boldSystemFontOfSize:px_scale(36)]];
+        _professionLabel.textAlignment = NSTextAlignmentLeft;
+    }
+    return _professionLabel;
+}
+
+- (UIImageView *)brandIcon {
+    if (!_brandIcon) {
+        _brandIcon = [[UIImageView alloc]init];
+        _brandIcon.layer.cornerRadius = px_scale(10);
+        _brandIcon.layer.masksToBounds = YES;
+    }
+    return _brandIcon;
+}
+
+- (UILabel *)brandName {
+    if (!_brandName) {
+        _brandName = [[UILabel alloc]init];
+        [_brandName setTextColor:[UIColor whiteColor]];
+        [_brandName setFont:[UIFont boldSystemFontOfSize:px_scale(34)]];
+        _brandName.textAlignment = NSTextAlignmentLeft;
+    }
+    return _brandName;
+}
+
+- (UILabel *)companyLabel {
+    if (!_companyLabel) {
+        _companyLabel = [[UILabel alloc]init];
+        [_companyLabel setTextColor:[UIColor whiteColor]];
+        [_companyLabel setFont:[UIFont systemFontOfSize:px_scale(26)]];
+        _companyLabel.textAlignment = NSTextAlignmentLeft;
+    }
+    return _companyLabel;
+}
+- (UILabel *)addressLabel {
+    if (!_addressLabel) {
+        _addressLabel = [[UILabel alloc]init];
+        [_addressLabel setTextColor:[UIColor whiteColor]];
+        [_addressLabel setFont:[UIFont systemFontOfSize:px_scale(26)]];
+        _addressLabel.textAlignment = NSTextAlignmentLeft;
+    }
+    return _addressLabel;
+}
+- (UILabel *)webLabel {
+    if (!_webLabel) {
+        _webLabel = [[UILabel alloc]init];
+        [_webLabel setTextColor:[UIColor whiteColor]];
+        [_webLabel setFont:[UIFont systemFontOfSize:px_scale(26)]];
+        _webLabel.textAlignment = NSTextAlignmentLeft;
+    }
+    return _webLabel;
+}
+
+- (UIImageView *)userIcon {
+    if (!_userIcon) {
+        _userIcon = [[UIImageView alloc]init];
+        
+    }
+    return _userIcon;
+}
+
+- (UILabel *)useName {
+    if (!_useName) {
+        _useName = [[UILabel alloc]init];
+        [_useName setTextColor:[UIColor blackColor]];
+        [_useName setFont:[UIFont boldSystemFontOfSize:px_scale(30)]];
+        _useName.textAlignment = NSTextAlignmentLeft;
+    }
+    return _useName;
+}
+
+- (UILabel *)flagitle {
+    if (!_flagitle) {
+        _flagitle = [[UILabel alloc]init];
+        [_flagitle setTextColor:[UIColor colorWithHexString:@"#D3141C"]];
+        [_flagitle setFont:[UIFont boldSystemFontOfSize:px_scale(28)]];
+        _flagitle.textAlignment = NSTextAlignmentLeft;
+        
+        
+    }
+    return _flagitle;
+}
+
+- (UIImageView *)QRImage {
+    if (!_QRImage) {
+        _QRImage = [[UIImageView alloc]init];
+        [_QRImage setImage:[UIImage imageNamed:@"ppsj_wxew_sys_img"]];
+    }
+    return _QRImage;
+}
+
+- (UIButton *)saveBtn {
+    if (!_saveBtn) {
+        _saveBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_saveBtn setTitle:@"保存至相册" forState:UIControlStateNormal];
+        [_saveBtn setImage:[UIImage imageNamed:@"ppsj_bcxc_btn_icon"] forState:UIControlStateNormal];
+        [_saveBtn setBackgroundColor:[UIColor colorWithHexString:@"#D3141C"]];
+        [_saveBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_saveBtn addTarget:self action:@selector(saveBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        _saveBtn.layer.cornerRadius = px_scale(44);
+        _saveBtn.layer.masksToBounds = YES;
+    }
+    return _saveBtn;
+}
+
+- (UILabel *)UnKnow {
+    if (!_UnKnow) {
+        _UnKnow  = [[UILabel alloc]init];
+        _UnKnow.text = @"匿名";
+        [_UnKnow setTextColor:[UIColor colorWithHexString:@"#666666"]];
+        [_UnKnow setFont:[UIFont boldSystemFontOfSize:px_scale(30)]];
+        _UnKnow.textAlignment = NSTextAlignmentRight;
+    }
+    return _UnKnow;
+}
+
+- (UISwitch *)UnKnowSwitch {
+    if (!_UnKnowSwitch) {
+        _UnKnowSwitch = [[UISwitch alloc]init];
+        _UnKnowSwitch.onTintColor = [UIColor colorWithHexString:@"#D3141C"];
+        [_UnKnowSwitch addTarget:self action:@selector(mySwtichValueChange:) forControlEvents:UIControlEventValueChanged];
+    }
+    return _UnKnowSwitch;
+}
+@end

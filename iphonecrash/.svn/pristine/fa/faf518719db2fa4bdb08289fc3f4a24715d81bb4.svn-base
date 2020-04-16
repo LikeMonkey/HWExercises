@@ -1,0 +1,64 @@
+//
+//  PrefixHeader.pch
+//  ZhongQiBrand
+//
+//  Created by 孙程 on 2019/9/16.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import "HomeTimeManager.h"
+#import "UIColor+Hex.h"
+//第三方 -- 文件 -----------
+#import <Masonry.h>
+#import <IQKeyboardManager/IQKeyboardManager.h>
+#import <MJRefresh.h>
+#import "UIImageView+WebCache.h"
+#import "UIButton+WebCache.h"
+#import "SDCycleScrollView.h"
+
+#import <UMShare/UMShare.h>
+//分享
+#import "SharePopView.h"
+#import "ShareManager.h"
+#import "UIImage+ColorImg.h"
+#import "NSString+time.h"
+#import "NSURL+Params.h"
+#import "UIButton+LSSmsVerification.h"
+#import "NSString+defailt.h"
+#import "UIView+LG_Frame.h"
+#import "UIView+LgPlaceholder.h"
+#import "UIViewController+ESSeparatorInset.h"
+#import "UIColor+Gradient.h"
+#import "UIApplication+Visible.h"
+#import "YYModel.h" //模型转换
+//网络
+#import "RequestBaseTool.h"
+#import "Reachability.h"
+#import "Server.h"
+
+#import "MessageManager.h"
+
+//自定义刷新header footer
+#import "GiftHeader.h"
+#import "MJFooter.h"
+#import "MJHeader.h"
+
+// ====== Toast =========
+#import "WDAlert.h"
+// =======  宏定义 ========
+#import "ZhongQiBrandCloudMacro.h"
+
+#import "ApiMacro.h"
+
+//通知名称 宏定义
+#import "NotificationNameMacro.h"
+
+#import "TokenModel.h"
+
+//
+#import "MobilePhoneVerificationView.h"
+
+#endif /* PrefixHeader_pch */

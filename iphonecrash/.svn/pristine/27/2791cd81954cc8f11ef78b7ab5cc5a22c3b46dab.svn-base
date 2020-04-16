@@ -1,0 +1,75 @@
+//
+//  UserTouchManager.m
+//  VoteCloud
+//
+//  Created by ios2 on 2019/8/14.
+//  Copyright © 2019 CY. All rights reserved.
+//
+
+#import "UserTouchManager.h"
+#import <LocalAuthentication/LocalAuthentication.h>
+ //用户指纹
+#define USER_Touch [[NSUserDefaults standardUserDefaults] stringForKey:@"isUserTouch"]
+
+@implementation UserTouchManager
+
++(BOOL)isOpenTouch {
+	if ([UIDevice currentDevice].systemVersion.floatValue < 8.0)  {
+		return NO;
+	}
+	if (!USER_Touch) {
+		[self setIsOpenTouch:YES];
+		return YES;
+	}else{
+		if ([USER_Touch isEqualToString:@"1"]) {
+			return YES;
+		}else{
+			return NO;
+		}
+	}
+}
++(void)setIsOpenTouch:(BOOL)isOpen
+{
+	[[NSUserDefaults standardUserDefaults] setObject:isOpen?@"1":@"0" forKey:@"isUserTouch"];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isSuportTouch {
+	LAContext *ctx = [[LAContext alloc] init]; // 判断设备是否支持指纹识别
+	if ([ctx canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:NULL]) {
+			return YES;
+		}else{
+			return NO;
+	}
+}
++(void)useFaceOrTouch:(void(^)(TouchIdAuthorState state))completion
+{
+	if (![self isSuportTouch]) {
+		!completion?:completion(NotSurportTouchId);
+		return;
+	}
+	if (![self isOpenTouch]) {
+		!completion?:completion(UserCloseType);
+		return;
+	}
+	LAContext *ctx = [[LAContext alloc] init];
+	NSString *str = @"通过Home键验证指纹进行投票";
+	if (@available(iOS 11.0, *)) {
+		if (ctx.biometryType == LABiometryTypeTouchID) {
+			str = @"通过Home键验证指纹进行投票";
+		}else if (ctx.biometryType == LABiometryTypeFaceID){
+			str = @"通过面容ID验证进行投票";
+		}
+	}
+	[ctx evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics localizedReason:NSLocalizedString(str,nil) reply:^(BOOL success, NSError *error) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (success) {
+				!completion?:completion(AuthorSucessType);
+			}else{
+				!completion?:completion(AuthorFailType);
+			}
+		});
+	}];
+}
+
+@end
